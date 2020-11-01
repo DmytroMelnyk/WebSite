@@ -19,4 +19,4 @@ COPY --from=publish /app/publish .
 #EXPOSE 80
 #ENTRYPOINT ["dotnet", "TelegramBot.dll"]
 # heroku uses the following
-CMD ASPNETCORE_URLS=http://*:$PORT dotnet TelegramBot.dll
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet WebSite.dll
