@@ -1,22 +1,22 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
-WORKDIR /app
-EXPOSE 80
-EXPOSE 443
-
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
-WORKDIR /src
-COPY ["WebSite/WebSite.csproj", "WebSite/"]
-RUN dotnet restore "WebSite/WebSite.csproj"
+ARG CS_PROJ="WebSite"
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS prerestore
 COPY . .
-WORKDIR "/src/WebSite"
-RUN dotnet build "WebSite.csproj" -c Release -o /app/build
+RUN mkdir ./proj && for f in $(find . -name '*.csproj'); do \
+  cp --parents $f ./proj/; done
 
-FROM build AS publish
-RUN dotnet publish "WebSite.csproj" -c Release -o /app/publish
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS publish
+ARG CS_PROJ
+WORKDIR /src
+COPY --from=prerestore ./proj .
+RUN dotnet restore "$CS_PROJ/$CS_PROJ.csproj"
+COPY . .
+WORKDIR "/src/$CS_PROJ"
+RUN dotnet publish "$CS_PROJ.csproj" -c Release -o /app/publish --no-restore
 
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "WebSite.dll"]
+#EXPOSE 80
+#ENTRYPOINT ["dotnet", "TelegramBot.dll"]
+# heroku uses the following
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet TelegramBot.dll
