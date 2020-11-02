@@ -18,7 +18,7 @@ WORKDIR "/src/$CS_PROJ"
 RUN dotnet publish "$CS_PROJ.csproj" -c Release -o /app/publish --no-restore
 
 #FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.1-stretch-slim
+FROM microsoft/dotnet:2.2-aspnetcore-runtime
 WORKDIR /app
 COPY --from=publish /app/publish .
 #EXPOSE 80
