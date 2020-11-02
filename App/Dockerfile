@@ -5,10 +5,10 @@ RUN mkdir ./proj && for f in $(find . -name '*.csproj'); do \
   cp --parents $f ./proj/; done
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS publish
-RUN apt-get update -yq \
-    && apt-get install curl gnupg -yq \
-    && curl -sL https://deb.nodesource.com/setup_10.x | bash \
-    && apt-get install nodejs -yq
+#RUN apt-get update -yq \
+    #&& apt-get install curl gnupg -yq \
+    #&& curl -sL https://deb.nodesource.com/setup_10.x | bash \
+    #&& apt-get install nodejs -yq
 ARG CS_PROJ
 WORKDIR /src
 COPY --from=prerestore ./proj .
@@ -17,7 +17,8 @@ COPY . .
 WORKDIR "/src/$CS_PROJ"
 RUN dotnet publish "$CS_PROJ.csproj" -c Release -o /app/publish --no-restore
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
+#FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.1-stretch-slim
 WORKDIR /app
 COPY --from=publish /app/publish .
 #EXPOSE 80
